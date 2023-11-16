@@ -1,11 +1,13 @@
 from function import *
-import os
+
 
 # Call of the function
 directory = "./speeches"
 files_names = list_of_files(directory, "txt")
-print_list(files_names)
+print(files_names)
 
-with open('files_names', "a") as f:
-    minuscule(f)
+f = files_names
+for i in files_names:
+    open(i, "a")
+    minuscule(i) ghghgh
 
