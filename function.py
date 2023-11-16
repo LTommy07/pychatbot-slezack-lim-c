@@ -4,13 +4,25 @@ def list_of_files(directory, extension):
     for filename in os.listdir(directory):
         if filename.endswith(extension):
                 files_names.append(filename)
-    for i in files_names:
-        chaine = i
-        for i in range(11,len(chaine)-4):
-            nom = chaine[i]
-            print(nom, end="")
-        print(end=" ")
+
     return files_names
+
+directory='speeches'
+f=list_of_files(directory,'txt')
+
+def nom_president(file_name):
+    a=[]
+    for i in range(len(file_name)) :
+        chaine=''
+        for j in range(11,len(file_name)-4):
+            s=ord(file_name[i][j])
+            if s>=65 and s<=90 o
+                chaine=chr(s)
+            file_name.append(chaine)
+
+
+
+
 
 
 
@@ -25,5 +37,3 @@ def minuscule (files_names):
             ascii += 32
             min = chr(ascii)
         print(min, end="")
-
-
