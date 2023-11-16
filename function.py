@@ -16,9 +16,11 @@ def nom_president(file_name):
         chaine=''
         for j in range(11,len(file_name)-4):
             s=ord(file_name[i][j])
-            if s>=65 and s<=90 o
-                chaine=chr(s)
-            file_name.append(chaine)
+            if 90>= s >=65 or 122 >= s>= 97:
+                chaine+= file_name[i][j]
+            a.append(chaine)
+    return list(set(a))
+name= nom_president(f)
 
 
 
