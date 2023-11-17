@@ -14,13 +14,16 @@ def nom_president(file_name):
     a=[]
     for i in range(len(file_name)) :
         chaine=''
-        for j in range(11,len(file_name)-4):
+        for j in range(11,len(file_name[i])-4):
             s=ord(file_name[i][j])
             if 90>= s >=65 or 122 >= s>= 97:
                 chaine+= file_name[i][j]
-            a.append(chaine)
+
+        a.append(chaine)
     return list(set(a))
 name= nom_president(f)
+print(name)
+
 
 
 
