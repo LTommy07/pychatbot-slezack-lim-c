@@ -35,3 +35,37 @@ def afficher_noms_presidents(noms_presidents):
     for nom in sorted(noms_presidents):
         prenom = associer_prenom(nom)
         print(f'{prenom} {nom}')
+
+
+directory= "speeches"
+f = list_of_files(directory,"txt")
+
+# Fonction pour retirer les accents
+def remove_accents(text):
+    # Dictionnaire de correspondance pour les caractères accentués
+    accents_dict = {
+        'à': 'a', 'á': 'a', 'â': 'a', 'ä': 'a',
+        'è': 'e', 'é': 'e', 'ê': 'e', 'ë': 'e',
+        'ì': 'i', 'í': 'i', 'î': 'i', 'ï': 'i',
+        'ò': 'o', 'ó': 'o', 'ô': 'o',
+        'ù': 'u', 'ú': 'u', 'û': 'u'
+    }
+
+    # Remplacement des caractères accentués
+    cleaned_text = ''.join(accents_dict.get(char, char) for char in text)
+    return cleaned_text
+
+def minus(minus):
+    # Parcourir les fichiers dans le dossier des discours
+    for filename in os.listdir(directory):
+        if filename.endswith('.txt'):  # Assurez-vous que le fichier est un fichier texte
+            with open(os.path.join(directory, filename), 'r', encoding='utf-8') as file:
+                content = file.read()
+
+                # Nettoyer le contenu (retirer les accents et convertir en minuscules)
+                cleaned_content = remove_accents(content).lower()
+
+                # Écrire le contenu nettoyé dans un nouveau fichier dans le dossier "cleaned"
+                cleaned_file_path = os.path.join('cleaned', filename)
+                with open(cleaned_file_path, 'w', encoding='utf-8') as cleaned_file:
+                    cleaned_file.write(cleaned_content)
