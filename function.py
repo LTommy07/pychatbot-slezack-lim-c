@@ -7,38 +7,31 @@ def list_of_files(directory, extension):
 
     return files_names
 
-directory='speeches'
-f=list_of_files(directory,'txt')
+# Extraire les noms des présidents à partir des noms des fichiers texte fournis
+def extraire_noms_presidents(dossier):
+    noms_fichiers = os.listdir(dossier)
+    noms_presidents = set()   #on utilise un set ici pour éviter les doublons
+    for nom_fichier in noms_fichiers:
+        if nom_fichier.startswith('Nomination_') and nom_fichier.endswith('.txt'):
+            parties = nom_fichier.replace('Nomination_', '').split('.')[0]
+            nom_president = ''.join([i for i in parties if not i.isdigit()]).strip()
+            noms_presidents.add(nom_president)
+    return noms_presidents
 
-def nom_president(file_name):
-    a=[]
-    for i in range(len(file_name)) :
-        chaine=''
-        for j in range(11,len(file_name[i])-4):
-            s=ord(file_name[i][j])
-            if 90>= s >=65 or 122 >= s>= 97:
-                chaine+= file_name[i][j]
+# Associer à chaque président un prénom
+def associer_prenom(nom_president):
+    prenoms = {
+        'Chirac': 'Jacques',
+        'Giscard dEstaing': 'Valéry',
+        'Mitterrand': 'François',
+        'Sarkozy': 'Nicolas',
+        'Hollande': 'François',
+        'Macron': 'Emmanuel'
+    }
+    return prenoms.get(nom_president, "Prénom inconnu")
 
-        a.append(chaine)
-    return list(set(a))
-name= nom_president(f)
-print(name)
-
-
-
-
-
-
-
-
-
-
-
-def minuscule (files_names):
-    for i in files_names:
-        ascii = ord(i)
-        min = chr(ascii)
-        if 65 <= ascii <= 90:
-            ascii += 32
-            min = chr(ascii)
-        print(min, end="")
+# Afficher la liste des noms des présidents
+def afficher_noms_presidents(noms_presidents):
+    for nom in sorted(noms_presidents):
+        prenom = associer_prenom(nom)
+        print(f'{prenom} {nom}')
