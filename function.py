@@ -40,7 +40,7 @@ def afficher_noms_presidents(noms_presidents):
 directory= "speeches"
 f = list_of_files(directory,"txt")
 
-# Création du dossier "cleaned" s'il n'existe pas déjà
+# Création du dossier "cleaned"
 if not os.path.exists('cleaned'):
     os.makedirs('cleaned')
     
