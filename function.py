@@ -1,5 +1,5 @@
 import os
-
+import string
 def list_of_files(directory, extension):
     """
     Liste tous les fichiers dans le répertoire donné ayant l'extension spécifiée.
@@ -56,6 +56,44 @@ def convertir_en_minuscule (directory,target_directory):
                   open(new_filename,'w',encoding='utf-8')as f2):
                 contenu=f1.read().lower()
                 f2.write(contenu)
+
+
+
+
+
+
+def enlever_ponctuation(target_directory):
+    """
+    Supprime la ponctuation des fichiers dans le répertoire donné, en remplaçant l'apostrophe et le tiret par des espaces.
+    Les modifications sont enregistrées dans les mêmes fichiers.
+    """
+    # Liste des caractères de ponctuation à supprimer (sauf apostrophe et tiret)
+    punctuation = string.punctuation.replace("'", "").replace("-", "")
+
+    for filename in os.listdir(target_directory):
+        if filename.endswith(".txt"):
+            file_path = os.path.join(target_directory, filename)
+
+            with open(file_path, 'r', encoding='utf-8') as file:
+                content = file.read()
+
+            # Remplace les apostrophes et les tirets par des espaces
+            content = content.replace("'", " ").replace("-", " ")
+
+            # Supprime les autres caractères de ponctuation
+            content = ''.join(char if char not in punctuation else ' ' for char in content)
+
+            with open(file_path, 'w', encoding='utf-8') as file:
+                file.write(content)
+
+
+
+
+
+
+
+
+
 
 
 
