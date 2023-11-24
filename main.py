@@ -1,24 +1,12 @@
-from function import *
+from functiontest import *
+
 directory = "./speeches"
-file_names = list_of_files(directory,"txt")
-print("Fichiers trouvés dans le répertoire 'speeches':")
+target_directory="./cleaned"
+files_names = list_of_files(directory, ".txt")
+presidents = extraire_noms_presidents(files_names)
+presidents_with_first_names = associer_noms_presidents(presidents)
 
-for name in file_names:
-    print(name)
+afficher_presidents(presidents_with_first_names)
 
-
-nom_president = extraire_noms_presidents(directory)
-print("\nListe des présidents")
-afficher_noms_presidents(nom_president)
-
-print(nom_president)
-
-# Création du dossier "cleaned"
-if not os.path.exists('cleaned'):
-    os.makedirs('cleaned')
-    
-remove_accents(file_names)
-minus(file_names)
-
-
+convertir_en_minuscule(directory,target_directory)
 
