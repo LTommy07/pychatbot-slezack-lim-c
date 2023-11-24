@@ -13,6 +13,10 @@ afficher_noms_presidents(nom_president)
 
 print(nom_president)
 
+# Création du dossier "cleaned"
+if not os.path.exists('cleaned'):
+    os.makedirs('cleaned')
+    
 remove_accents(file_names)
 minus(file_names)
 
