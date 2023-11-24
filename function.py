@@ -48,17 +48,19 @@ if not os.path.exists('cleaned'):
 # Fonction pour retirer les accents
 def remove_accents(text):
     # Dictionnaire de correspondance pour les caractères accentués
-    accents_dict = {
-        'à': 'a', 'á': 'a', 'â': 'a', 'ä': 'a',
-        'è': 'e', 'é': 'e', 'ê': 'e', 'ë': 'e',
-        'ì': 'i', 'í': 'i', 'î': 'i', 'ï': 'i',
-        'ò': 'o', 'ó': 'o', 'ô': 'o',
-        'ù': 'u', 'ú': 'u', 'û': 'u'
-    }
+    accents_dict = {'à': 'a', 'á': 'a', 'â': 'a', 'ä': 'a',
+                    'è': 'e', 'é': 'e', 'ê': 'e', 'ë': 'e',
+                    'ì': 'i', 'í': 'i', 'î': 'i', 'ï': 'i',
+                    'ò': 'o', 'ó': 'o', 'ô': 'o',
+                    'ù': 'u', 'ú': 'u', 'û': 'u'
+                    }
 
     # Remplacement des caractères accentués
-    cleaned_text = ''.join(accents_dict.get(char, char) for char in text)
+    cleaned_text = ''
+    for replace in text:
+        cleaned_text += accents_dict.get(replace, replace)
     return cleaned_text
+
 
 def minus(minus):
     # Parcourir les fichiers dans le dossier des discours
