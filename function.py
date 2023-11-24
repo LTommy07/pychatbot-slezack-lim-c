@@ -39,10 +39,6 @@ def afficher_noms_presidents(noms_presidents):
 
 directory= "speeches"
 f = list_of_files(directory,"txt")
-
-# Création du dossier "cleaned"
-if not os.path.exists('cleaned'):
-    os.makedirs('cleaned')
     
 
 # Fonction pour retirer les accents
