@@ -1,6 +1,6 @@
+import math
 import os
 import string
-import math
 def list_of_files(directory, extension):
     """
     Liste tous les fichiers dans le répertoire donné ayant l'extension spécifiée.
@@ -43,7 +43,7 @@ def afficher_presidents(presidents):
     """
     Affiche la liste des présidents sans doublons.
     """
-    for last_name ,first_name in presidents.items():
+    for last_name,first_name in presidents.items():
         print(f"{first_name} {last_name}")
 
 
@@ -75,82 +75,64 @@ def enlever_ponctuation(target_directory):
         if filename.endswith(".txt"):
             file_path = os.path.join(target_directory, filename)
 
-            with open(file_path, 'r', encoding='utf-8') as file:
-                content = file.read()
+            with open(file_path, 'r', encoding='utf-8') as f1:
+                contenu = f1.read()
 
             # Remplace les apostrophes et les tirets par des espaces
-            content = content.replace("'", " ").replace("-", " ")
+            contenu = contenu.replace("'", " ").replace("-", " ")
 
             # Supprime les autres caractères de ponctuation
-            content = ''.join(char if char not in punctuation else ' ' for char in content)
+            contenu = ''.join(char if char not in punctuation else ' ' for char in contenu)
 
-            with open(file_path, 'w', encoding='utf-8') as file:
-                file.write(content)
+            with open(file_path, 'w', encoding='utf-8') as f1:
+                f1.write(contenu)
 
 
-def TF_intermédiaire(target_directory):
-    """
-    Compte le nombre d'occurrences de chacun des mots d'un texte et le met dans un dictionnaire
-    """
-    mots = target_directory.split()  # Divise la chaîne de caractères en mots individuels
-    occurrences = {}
 
-    for mot in mots:
-        if mot in occurrences:  # Si le mot est déjà présent dans le dictionnaire, incrémenter le compteur d'occurrences
-            occurrences[mot] += 1
+def nombre_occurences(texte):
+    chaine=texte.split()
+    tf={}
+    for mots in chaine:
+        if mots in tf:
+            tf[mots]+=1
         else:
-            occurrences[mot] = 1  # Si le mot n'est pas dans le dictionnaire, l'ajouter avec une occurrence de 1
+            tf[mots] = 1
+        return tf
 
-    return occurrences
-
-def TF(target_directory):
-    """
-    Calcul de la valeur du TF
-    """
-    list_dict_TF = []   # Création d'une liste afin de mettre les dictionnaires de tous les fichiers
-    for filename in os.listdir(target_directory):
-        if filename.endswith('.txt'):
-            file_path = os.path.join(target_directory, filename)
-
-            with open(file_path, 'r', encoding='utf-8') as file:    # Lire le contenu du fichier et compter les mots
-                content = file.read()
-                dict = TF_intermédiaire(content)    # Compte le nombre d'occurrences de chacun des mots de tous les textes du dossiers cleaned et le met dans un dictionnaire
-                list_dict_TF.append(dict)   # Ajoute les dictionnaires dans la liste
-
-    return list_dict_TF
-
-
-def IDF(corpus):
-    """
-    Calcul de la valeur du IDF
-    """
-    documents_contenant_mot = {}    # Dictionnaire pour stocker le nombre de documents contenant chaque mot
-    nb_total_documents = 0
-    for filename in os.listdir(corpus): # Compter le nombre de documents contenant chaque mot dans le corpus
+def calculer_idf(dossier):
+    fichiers=os.listdir(dossier)
+    occurencemot={}
+    nbfichier=0
+    for filename in fichiers:
         if filename.endswith(".txt"):
-            file_path = os.path.join(corpus, filename)
-            if os.path.isfile(file_path):
-                nb_total_documents += 1
-                mots_dans_document = set()
-
-            with open(file_path, 'r', encoding='utf-8') as file:
-                for ligne in file:  # Pour chaque ligne dans le fichier
-                    mots = ligne.split()  # Séparer les mots
-                    mots_dans_document.update(mots)  # Ajouter les mots au set pour compter une fois par document
-
-            for mot in mots_dans_document:  # Mettre à jour le dictionnaire avec les mots du document
-                if mot not in documents_contenant_mot:
-                    documents_contenant_mot[mot] = 0
-                documents_contenant_mot[mot] += 1
-
-    idf_value = {}  # Calculer la valeur IDF pour chaque mot
-    for mot, nb_documents_contenant_mot in documents_contenant_mot.items():    # Prend les clés et les valeurs du dictionaire pour faire le calcul du IDF
-        idf = math.log((nb_total_documents / nb_documents_contenant_mot) + 1)  # Formule IDF
-        idf_value[mot] = idf
-
-    return idf_value
+            nbfichier+=1
+            with open (os.path.join(dossier, filename),'r',encoding='utf-8')as f1:
+                mots_unique=set(f1.read().split())
+                for mots in mots_unique:
+                    if mots in occurencemot:
+                        occurencemot[mots] += 1
+                    else:
+                        occurencemot[mots] = 1
+    idf={}
+    for mot, comptage in occurencemot.items():
+        idf[mot]=math.log(nbfichier/float(comptage))
+    return idf
 
 
+def calculer_tf_idf (directory):
+    tf_idf_matrice={}
+    idf_score=calculer_idf(directory)
+    file=os.listdir(directory)
+    for filename in file:
+        if filename.endswith('.txt'):
+            with open (os.path.join(directory, filename, 'r' ,   encoding='utf-8'))as f1:
+                tf_score=nombre_occurences(f1.read())
+                for mot,tf in tf_score.items():
+                    if mot in tf_idf_matrice:
+                        tf_idf_matrice[mot].append(tf * idf_score[mot])
+                    else:
+                        tf_idf_matrice[mot]= [tf * idf_score[mot]]
+    return tf_idf_matrice
 
 
 
