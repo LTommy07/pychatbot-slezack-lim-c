@@ -1,5 +1,6 @@
 import os
 import string
+import math
 def list_of_files(directory, extension):
     """
     Liste tous les fichiers dans le répertoire donné ayant l'extension spécifiée.
@@ -104,21 +105,50 @@ def TF_intermédiaire(target_directory):
 
 def TF(target_directory):
     """
-    Parcours tous les textes du dossier cleaned.
-    Compte le nombre d'occurrences de chacun des mots de tous les textes du dossiers cleaned et le met dans un dictionnaire
-    Met tous les dictionnaires créés dans une liste
+    Calcul de la valeur du TF
     """
-    list_dict_TF = []
+    list_dict_TF = []   # Création d'une liste afin de mettre les dictionnaires de tous les fichiers
     for filename in os.listdir(target_directory):
         if filename.endswith('.txt'):
             file_path = os.path.join(target_directory, filename)
 
             with open(file_path, 'r', encoding='utf-8') as file:    # Lire le contenu du fichier et compter les mots
-                file_content = file.read()
-                dict = TF_intermédiaire(file_content)
-                list_dict_TF.append(dict)
+                content = file.read()
+                dict = TF_intermédiaire(content)    # Compte le nombre d'occurrences de chacun des mots de tous les textes du dossiers cleaned et le met dans un dictionnaire
+                list_dict_TF.append(dict)   # Ajoute les dictionnaires dans la liste
 
     return list_dict_TF
+
+
+def IDF(corpus):
+    """
+    Calcul de la valeur du IDF
+    """
+    documents_contenant_mot = {}    # Dictionnaire pour stocker le nombre de documents contenant chaque mot
+    nb_total_documents = 0
+    for filename in os.listdir(corpus): # Compter le nombre de documents contenant chaque mot dans le corpus
+        if filename.endswith(".txt"):
+            file_path = os.path.join(corpus, filename)
+            if os.path.isfile(file_path):
+                nb_total_documents += 1
+                mots_dans_document = set()
+
+            with open(file_path, 'r', encoding='utf-8') as file:
+                for ligne in file:  # Pour chaque ligne dans le fichier
+                    mots = ligne.strip().split()  # Séparer les mots
+                    mots_dans_document.update(mots)  # Ajouter les mots au set pour compter une fois par document
+
+            for mot in mots_dans_document:  # Mettre à jour le dictionnaire avec les mots du document
+                if mot not in documents_contenant_mot:
+                    documents_contenant_mot[mot] = 0
+                documents_contenant_mot[mot] += 1
+
+    idf_value = {}  # Calculer la valeur IDF pour chaque mot
+    for mot, nb_documents_contenant_mot in documents_contenant_mot.items():    # Prend les clés et les valeurs du dictionaire pour faire le calcul du IDF
+        idf = math.log((nb_total_documents / nb_documents_contenant_mot) + 1)  # Formule IDF
+        idf_value[mot] = idf
+
+    return idf_value
 
 
 
