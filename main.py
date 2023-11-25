@@ -11,3 +11,4 @@ afficher_presidents(presidents_with_first_names)
 convertir_en_minuscule(directory,target_directory)
 enlever_ponctuation(target_directory)
 
+print(TF(target_directory))
