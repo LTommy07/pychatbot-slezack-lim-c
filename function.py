@@ -135,7 +135,7 @@ def IDF(corpus):
 
             with open(file_path, 'r', encoding='utf-8') as file:
                 for ligne in file:  # Pour chaque ligne dans le fichier
-                    mots = ligne.strip().split()  # Séparer les mots
+                    mots = ligne.split()  # Séparer les mots
                     mots_dans_document.update(mots)  # Ajouter les mots au set pour compter une fois par document
 
             for mot in mots_dans_document:  # Mettre à jour le dictionnaire avec les mots du document
