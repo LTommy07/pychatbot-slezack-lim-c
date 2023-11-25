@@ -87,7 +87,34 @@ def enlever_ponctuation(target_directory):
                 file.write(content)
 
 
+def TF_intermédiaire(target_directory):
 
+    mots = target_directory.split()  # Divise la chaîne de caractères en mots individuels
+    occurrences = {}
+
+    for mot in mots:
+        # Si le mot est déjà présent dans le dictionnaire, incrémenter le compteur d'occurrences
+        if mot in occurrences:
+            occurrences[mot] += 1
+        else:
+            occurrences[mot] = 1  # Si le mot n'est pas dans le dictionnaire, l'ajouter avec une occurrence de 1
+
+    return occurrences
+
+def TF(target_directory):
+
+    list_dict_TF = []
+    for filename in os.listdir(target_directory):
+        if filename.endswith('.txt'):  # Assurez-vous que seuls les fichiers texte sont pris en compte
+            file_path = os.path.join(target_directory, filename)
+
+            # Lire le contenu du fichier et compter les mots
+            with open(file_path, 'r', encoding='utf-8') as file:
+                file_content = file.read()
+                dict = TF_intermédiaire(file_content)
+                list_dict_TF.append(dict)
+
+    return list_dict_TF
 
 
 
