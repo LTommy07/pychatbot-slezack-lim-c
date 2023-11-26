@@ -48,18 +48,14 @@ def afficher_presidents(presidents):
 
 
 def convertir_en_minuscules(directory, target_directory):
-    """
-    Parcourt chaque fichier dans le répertoire spécifié, converti tous les mots en minuscule,
-    et sauvegarde les changements dans un nouveau répertoire nommé 'cleaned'.
-    """
     os.makedirs(target_directory, exist_ok=True)
     for filename in os.listdir(directory):
         if filename.endswith(".txt"):
             new_filename = os.path.join(target_directory, filename)
             with open(os.path.join(directory, filename), 'r', encoding='utf-8') as f1,\
                  open(new_filename, 'w', encoding='utf-8') as f2:
-                content = f1.read().lower()   # Converti chaque fichier du répertoire 'speeches' en minuscule
-                f2.write(content)   # Sauvegarde les changements dans le nouveau répertoire 'cleaned'
+                content = f1.read().lower()
+                f2.write(content)
 
 
 def supprimer_ponctuation(directory):
@@ -76,16 +72,14 @@ def supprimer_ponctuation(directory):
             with open(file_path, 'r', encoding='utf-8') as file:
                 content = file.read()
                 for char in punctuation:
-                    content = content.replace(char, " ")  # Remplace la ponctuation par des espaces.
-                content = content.replace("'", " ").replace("-"," ")  # Remplace les apostrophes et les tirets par des espaces.
+                    content = content.replace(char, " ")  # Remplace la ponctuation par des espaces
+                content = content.replace("'", " ").replace("-",
+                                                            " ")  # Remplace les apostrophes et les tirets par des espaces
 
             with open(file_path, 'w', encoding='utf-8') as file:
                 file.write(content)
 
 def calculer_tf(texte):
-    """
-    Calcul de la valeur du TF (pour compter le nombre d'occurrences de chacun des mots d'un texte).
-    """
     mots = texte.split()
     tf = {}
     for mot in mots:
@@ -97,47 +91,42 @@ def calculer_tf(texte):
 
 
 def calculer_idf(directory):
-    """
-    Calcul de la valeur de l'IDF (pour mesurer l'importance de chacun des mots dans le corpus de document).
-    """
     files = os.listdir(directory)
-    nb_fichiers = len([f for f in files if f.endswith('.txt')])   # Initialise le nombre total de documents
-    comptage_docs_mot = {}    # Initialisation d'un dictionnaire
+    nb_fichiers = len([f for f in files if f.endswith('.txt')])
+    comptage_docs_mot = {}
 
     for filename in files:
         if filename.endswith('.txt'):
             with open(os.path.join(directory, filename), 'r', encoding='utf-8') as file:
-                mots_uniques = set(file.read().split())   # Supprime tous les doublons de mots
-                for mot in mots_uniques:    # Boucle 'mot' qui parcourt tous les 'mots_unique' dans chaque fichier
-                    if mot in comptage_docs_mot:    # Compte le nombre de documents contenant le terme 'mot'
+                mots_uniques = set(file.read().split())
+                for mot in mots_uniques:
+                    if mot in comptage_docs_mot:
                         comptage_docs_mot[mot] += 1
                     else:
                         comptage_docs_mot[mot] = 1
 
     idf = {}
-    for mot, comptage in comptage_docs_mot.items():   # Boucle qui parcourt tous les clés et les valeurs du dictionnaire
-        idf[mot] = math.log(nb_fichiers / float(comptage))    # Calcul de l'IDF
+    for mot, comptage in comptage_docs_mot.items():
+        idf[mot] = math.log(nb_fichiers / float(comptage))
 
     return idf
 
 
+
 def calculer_tf_idf(directory):
-    """
-    Calcul de la matrice TF_IDF
-    """
-    tf_idf_matrice = {}   # Initialisation du dictionnaire TF_IDF
-    idf_scores = calculer_idf(directory)    # Calcul de l'IDF
+    tf_idf_matrice = {}
+    idf_scores = calculer_idf(directory)
     files = os.listdir(directory)
 
     for filename in files:
         if filename.endswith('.txt'):
             with open(os.path.join(directory, filename), 'r', encoding='utf-8') as file:
-                tf_scores = calculer_tf(file.read())    # Calcul du TF
+                tf_scores = calculer_tf(file.read())
                 for mot, tf in tf_scores.items():
                     if mot in tf_idf_matrice:
-                        tf_idf_matrice[mot].append(tf * idf_scores[mot])    # Si le mot est dans la liste, alors il ajoute la valeur du TF_IDF.
+                        tf_idf_matrice[mot].append(tf * idf_scores[mot])
                     else:
-                        tf_idf_matrice[mot] = [tf * idf_scores[mot]]   # Si le mot n'est pas dans le dictionnaire, alors il initialialise dans une liste.
+                        tf_idf_matrice[mot] = [tf * idf_scores[mot]]
 
     return tf_idf_matrice
 
@@ -146,9 +135,6 @@ def trouver_mots_moins_importants(tf_idf_matrice):
     return [mot for mot, scores in tf_idf_matrice.items() if all(score == 0 for score in scores)]
 
 def trouver_mots_avec_tf_idf_le_plus_eleve(tf_idf_matrice):
-    """
-    Fonction qui permet de trouver le mot ayant le score TF_IDF le plus élevé
-    """
     score_tf_idf_maximal = 0
     liste_mots_avec_score_maximal = []
 
@@ -189,6 +175,7 @@ def mots_les_plus_repetes_par_president(tf_idf_matrice, directory, nom_president
     return mots_les_plus_repetes, comptage_mots[mots_les_plus_repetes] if mots_les_plus_repetes != "Aucun mot trouvé" else 0
 
 
+
 def compter_mentions_nation(directory):
     """
     Compte le nombre de fois que le mot 'nation' est mentionné par chaque président.
@@ -209,21 +196,25 @@ def compter_mentions_nation(directory):
     return mentions_nation
 
 
-def extraire_nom_president2(nom_fichier):
+def extraire_nom_president2(filename):
     """
     Extrait le nom du président à partir du nom de fichier, en supprimant les numéros.
     """
-    nom_president = ""  # Initialiser nom_president avec une chaîne vide
-    parts = nom_fichier.replace(".txt", "").split('_')
+    # Supprime l'extension et divise en fonction des underscores
+    parts = filename.replace(".txt", "").split('_')
+    # Initialise nom_president avec une valeur par défaut vide
+    nom_president = ""
     if len(parts) > 1:
-        nom_president = parts[1]
-        nom_president = ''.join([i for i in nom_president if not i.isdigit()])  # Supprime les chiffres
+        # Rejoint les parties pour reformer le nom du président
+        nom_president = '_'.join(parts[1:])
+        # Supprime les chiffres de la fin si présents
+        nom_president = ''.join([i for i in nom_president if not i.isdigit()])
     return nom_president.strip()
 
 
 def trouver_premier_president_climat_ecologie(directory):
     """
-    Trouve le premier président à parler de 'climat' ou 'écologie' en suivant un ordre d'investiture prédéfini.
+    Trouve le premier président à mentionner des termes liés au climat ou à l'écologie, selon l'ordre d'investiture.
     """
     mots_recherches = [
         'climat',
@@ -248,7 +239,6 @@ def trouver_premier_president_climat_ecologie(directory):
     president_premiere_mention = ""
     fichier_premiere_mention = None
 
-    # L'ordre d'investiture est défini directement à l'intérieur de la fonction
     ordre_investiture = [
         'Giscard dEstaing',
         'Chirac1', 'Chirac2',
@@ -264,8 +254,8 @@ def trouver_premier_president_climat_ecologie(directory):
         if os.path.exists(file_path):
             with open(file_path, 'r', encoding='utf-8') as file:
                 content = file.read().lower()
-                if any(mot_recherche in content for mot_recherche in mots_recherches):
-                    president_premiere_mention = extraire_nom_president2(nom_fichier_investiture)
+                if any(mot in content for mot in mots_recherches):
+                    president_premiere_mention = extraire_nom_president2(filename)
                     fichier_premiere_mention = filename
                     break  # Sortie dès la première mention trouvée
 
@@ -292,3 +282,8 @@ def mots_communs_tous_presidents(directory, tf_idf_matrice):
     mots_communs = {mot for mot in mots_communs if any(score >0 for score in tf_idf_matrice.get(mot, []))}
 
     return mots_communs
+
+
+
+
+
