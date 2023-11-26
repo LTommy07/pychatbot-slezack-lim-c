@@ -1,4 +1,4 @@
-from functiontest import *
+from function import *
 
 # Chemins des répertoires pour les fichiers d'entrée et de sortie
 directory_speeches = "./speeches"
