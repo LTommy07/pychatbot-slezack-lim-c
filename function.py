@@ -196,27 +196,49 @@ def compter_mentions_nation(directory):
     return mentions_nation
 
 
-def extraire_nom_president2(nom_fichier):
+def extraire_nom_president2(filename):
     """
     Extrait le nom du président à partir du nom de fichier, en supprimant les numéros.
     """
-    nom_president = ""  # Initialiser nom_president avec une chaîne vide
-    parts = nom_fichier.replace(".txt", "").split('_')
+    # Supprime l'extension et divise en fonction des underscores
+    parts = filename.replace(".txt", "").split('_')
+    # Initialise nom_president avec une valeur par défaut vide
+    nom_president = ""
     if len(parts) > 1:
-        nom_president = parts[1]
-        nom_president = ''.join([i for i in nom_president if not i.isdigit()])  # Supprime les chiffres
+        # Rejoint les parties pour reformer le nom du président
+        nom_president = '_'.join(parts[1:])
+        # Supprime les chiffres de la fin si présents
+        nom_president = ''.join([i for i in nom_president if not i.isdigit()])
     return nom_president.strip()
 
 
 def trouver_premier_president_climat_ecologie(directory):
     """
-    Trouve le premier président à parler de 'climat' ou 'écologie' en suivant un ordre d'investiture prédéfini.
+    Trouve le premier président à mentionner des termes liés au climat ou à l'écologie, selon l'ordre d'investiture.
     """
-    mots_recherches = ['climat', 'écologie']
+    mots_recherches = [
+        'climat',
+        'climatique',
+        'écologie',
+        'écologique',
+        'planète',
+        'transition énergétique',
+        'réchauffement',
+        'changement climatique',
+        'réchauffement global',
+        'énergies renouvelables',
+        'émissions de gaz à effet de serre',
+        'développement durable',
+        'ressources naturelles'
+        'biodiversité',
+        'pollution',
+        'conservation de la nature',
+        'durabilité'
+    ]
+
     president_premiere_mention = ""
     fichier_premiere_mention = None
 
-    # L'ordre d'investiture est défini directement à l'intérieur de la fonction
     ordre_investiture = [
         'Giscard dEstaing',
         'Chirac1', 'Chirac2',
@@ -232,12 +254,34 @@ def trouver_premier_president_climat_ecologie(directory):
         if os.path.exists(file_path):
             with open(file_path, 'r', encoding='utf-8') as file:
                 content = file.read().lower()
-                if any(mot_recherche in content for mot_recherche in mots_recherches):
-                    president_premiere_mention = extraire_nom_president2(nom_fichier_investiture)
+                if any(mot in content for mot in mots_recherches):
+                    president_premiere_mention = extraire_nom_president2(filename)
                     fichier_premiere_mention = filename
                     break  # Sortie dès la première mention trouvée
 
     return president_premiere_mention, fichier_premiere_mention
+
+def mots_communs_tous_presidents(directory, tf_idf_matrice):
+    """
+    Identifie les mots communs à tous les discours des présidents, à l'exception de ceux ayant un score TF-IDF de 0.
+    """
+    files = [f for f in os.listdir(directory) if f.endswith('.txt')]
+    if not files:
+        return []
+
+
+    with open(os.path.join(directory, files[0]), 'r', encoding='utf-8') as file:
+        mots_communs = set(file.read().split())
+
+
+    for filename in files[1:]:
+        with open(os.path.join(directory, filename), 'r', encoding='utf-8') as file:
+            mots_fichier = set(file.read().split())
+            mots_communs = mots_communs.intersection(mots_fichier)
+
+    mots_communs = {mot for mot in mots_communs if any(score >0 for score in tf_idf_matrice.get(mot, []))}
+
+    return mots_communs
 
 
 
