@@ -85,12 +85,16 @@ def partie_un_menu():
         elif choice == '7':
             print("Retourner au menu principal.")
             break
+        else:
+            print("Choix invalide.Entrer un nombre entre 1 et 7:")
 def chatbot():
     while True:
         print("\nMode Chatbot:")
         print("Posez votre question (ou tapez 'quitter' pour revenir au menu principal):")
         question = input("Votre question : ")
-
+        while question[0].isdigit():
+            question = input("Reformuler votre question : ")
+            print("Posez votre question (ou tapez 'quitter' pour revenir au menu principal):")
         if question.lower() == 'quitter':
             print("Retour au menu principal.")
             break
