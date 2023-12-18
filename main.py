@@ -20,8 +20,27 @@ supprimer_ponctuation_et_accents(target_directory_cleaned)
 
 tf_idf_matrice = calculer_tf_idf(target_directory_cleaned)
 
-# Menu principal pour les fonctionnalités supplémentaires
+
+
 def main_menu():
+    while True:
+        print("\nMenu Principal:")
+        print("1. Accéder aux fonctionnalités de l'analyse de texte (Partie I)")
+        print("2. Mode Chatbot (Partie II)")
+        print("3. Quitter")
+        choice = input("Entrez votre choix (1-3) : ")
+
+        if choice == '1':
+            partie_un_menu()
+        elif choice == '2':
+            chatbot()
+        elif choice == '3':
+            print("Quitter le programme.")
+            break
+        else:
+            print("Choix invalide. Veuillez entrer un nombre entre 1 et 3.")
+# Menu principal pour les fonctionnalités supplémentaires
+def partie_un_menu():
     SEUIL_NON_IMPORTANT = 0.5
     while True:
         print("\nMenu Principal:")
@@ -66,6 +85,44 @@ def main_menu():
         elif choice == '7':
             print("Quitter le programme.")
             break
+def chatbot():
+    while True:
+        print("\nMode Chatbot:")
+        print("Posez votre question (ou tapez 'quitter' pour revenir au menu principal):")
+        question = input("Votre question : ")
+
+        if question.lower() == 'quitter':
+            print("Retour au menu principal.")
+            break
+
+        mots_question = tokeniser_question(question)  # Tokenisation de la question.
+        print("Mots de la question après tokenisation et filtrage :", mots_question)
+
+        mots_dans_corpus = trouver_mots_dans_corpus(mots_question, tf_idf_matrice)  # Identification des mots de la question présents dans le corpus.
+        print("Mots de la question présents dans le corpus :", mots_dans_corpus)
+
+        tf_idf_question = calculer_tf_idf_question(question, tf_idf_matrice)  # Calcul du vecteur TF-IDF pour la question.
+
+        # Trouver le document le plus pertinent dans 'cleaned'
+        nom_document_pertinent_cleaned = trouver_document_pertinent(tf_idf_matrice, tf_idf_question, files_names, mots_question)
+
+        if nom_document_pertinent_cleaned == "Aucun document pertinent trouvé pour la question posée.":
+            print(nom_document_pertinent_cleaned)
+        else:
+            # Convertir le chemin du fichier de 'cleaned' à 'speeches'
+            nom_document_pertinent_speeches = convertir_chemin_cleaned_vers_speeches(nom_document_pertinent_cleaned)
+            print(f"Document pertinent retourné : {nom_document_pertinent_speeches}")
+
+        # Trouver le mot avec le score TF-IDF le plus élevé dans la question
+        mot_important = trouver_mot_important(tf_idf_question)
+        print(f"Mot ayant le score TF-IDF le plus élevé : {mot_important}")
+        nom_document_pertinent_speeches = convertir_chemin_cleaned_vers_speeches(nom_document_pertinent_cleaned)
+        # Utiliser le chemin du document pertinent dans 'speeches' pour extraire la phrase
+        chemin_document_pertinent = os.path.join(directory_speeches, nom_document_pertinent_speeches)
+        phrase_avec_mot_important = extraire_phrase_avec_mot(chemin_document_pertinent, mot_important)
+        # Formuler la réponse en fonction du début de la question
+        reponse_formulee = formuler_reponse(question, phrase_avec_mot_important)
+        print("Réponse :", reponse_formulee)
 
 if __name__ == "__main__":
     main_menu()

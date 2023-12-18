@@ -297,3 +297,243 @@ def mots_communs_tous_presidents(directory, tf_idf_matrice):
 
     mots_communs = {mot for mot in mots_communs if any(score > 0 for score in tf_idf_matrice.get(mot, []))}    # Filtre pour exclure les mots avec un score TF-IDF de zéro.
     return mots_communs
+
+def tokeniser_question(question):
+    """
+    Tokenise une question en supprimant la ponctuation, les majuscules, et les mots vides.
+    """
+    liste_mots_vides_avec_accents = [
+        "a", "à", "â", "abord", "afin", "ah", "ai", "aie", "ainsi", "allaient",
+        "allo", "allô", "allons", "après", "assez", "attendu", "au", "aucun", "aucune",
+        "aujourd", "aujourd'hui", "auquel", "aura", "auront", "aussi", "autre", "autres",
+        "aux", "auxquelles", "auxquels", "avaient", "avais", "avait", "avant", "avec",
+        "avoir", "ayant", "b", "bah", "beaucoup", "bien", "bigre", "boum", "bravo", "brrr",
+        "c", "ça", "car", "ce", "ceci", "cela", "celle", "celle-ci", "celle-là", "celles",
+        "celles-ci", "celles-là", "celui", "celui-ci", "celui-là", "cent", "cependant", "certain",
+        "certaine", "certaines", "certains", "certes", "ces", "cet", "cette", "ceux", "ceux-ci",
+        "ceux-là", "chacun", "chaque", "cher", "chère", "chères", "chers", "chez", "chiche", "chut",
+        "ci", "cinq", "cinquantaine", "cinquante", "cinquantième", "cinquième", "clac", "clic",
+        "combien", "comme", "comment", "compris", "concernant", "contre", "couic", "crac", "d",
+        "da", "dans", "de", "debout", "dedans", "dehors", "delà", "depuis", "derrière", "des",
+        "dès", "désormais", "desquelles", "desquels", "dessous", "dessus", "deux", "deuxième",
+        "deuxièmement", "devant", "devers", "devra", "différent", "différente", "différentes",
+        "différents", "dire", "divers", "diverse", "diverses", "dix", "dix-huit", "dixième",
+        "dix-neuf", "dix-sept", "doit", "doivent", "donc", "dont", "douze", "douzième", "dring",
+        "du", "duquel", "durant", "e", "effet", "eh", "elle", "elle-même", "elles", "elles-mêmes",
+        "en", "encore", "entre", "envers", "environ", "es", "ès", "est", "et", "etant", "étaient",
+        "étais", "était", "étant", "etc", "été", "etre", "être", "eu", "euh", "eux", "eux-mêmes",
+        "excepté", "f", "façon", "fais", "faisaient", "faisant", "fait", "feront", "fi", "flac",
+        "floc", "font", "g", "gens", "h", "ha", "hé", "hein", "hélas", "hem", "hep", "hi", "ho",
+        "holà", "hop", "hormis", "hors", "hou", "houp", "hue", "hui", "huit", "huitième", "hum",
+        "hurrah", "i", "il", "ils", "importe", "j", "je", "jusqu", "jusque", "k", "l", "la",
+        "là", "laquelle", "las", "le", "lequel", "les", "lès", "lesquelles", "lesquels", "leur",
+        "leurs", "longtemps", "lorsque", "lui", "lui-même", "m", "ma", "maint", "mais", "malgré",
+        "me", "même", "mêmes", "merci", "mes", "mien", "mienne", "miennes", "miens", "mille",
+        "mince", "moi", "moi-même", "moins", "mon", "moyennant", "n", "na", "ne", "néanmoins",
+        "neuf", "neuvième", "ni", "nombreuses", "nombreux", "non", "nos", "notre", "nôtre",
+        "nôtres", "nous", "nous-mêmes", "nul", "o", "où", "ô", "oh", "ohé", "olé", "ollé", "on",
+        "ont", "onze", "onzième", "ore", "ou", "où", "ouf", "ouias", "oust", "ouste", "outre",
+        "p", "paf", "pan", "par", "parmi", "partant", "particulier", "particulière", "particulièrement",
+        "pas", "passé", "pendant", "personne", "peu", "peut", "peuvent", "peux", "pff", "pfft", "pfut",
+        "pif", "plein", "plouf", "plus", "plusieurs", "plutôt", "pouah", "pour", "pourquoi", "premier",
+        "première", "premièrement", "près", "proche", "psitt", "puisque", "q", "qu", "quand", "quant",
+        "quanta", "quant-à-soi", "quarante", "quatorze", "quatre", "quatre-vingt", "quatrième",
+        "quatrièmement", "que", "quel", "quelconque", "quelle", "quelles", "quelque", "quelques",
+        "quelqu'un", "quels", "qui", "quiconque", "quinze", "quoi", "quoique", "r", "revoici", "revoilà",
+        "rien", "s", "sa", "sacrebleu", "sans", "sapristi", "sauf", "se", "seize", "selon", "sept",
+        "septième", "sera", "seront", "ses", "si", "sien", "sienne", "siennes", "siens", "sinon", "six",
+        "sixième", "soi", "soi-même", "soit", "soixante", "son", "sont", "sous", "stop", "suis", "suivant",
+        "sur", "surtout", "t", "ta", "tac", "tant", "te", "té", "tel", "telle", "tellement", "telles", "tels",
+        "tenant", "tes", "tic", "tien", "tienne", "tiennes", "tiens", "toc", "toi", "toi-même", "ton",
+        "touchant", "toujours", "tous", "tout", "toute", "toutes", "treize", "trente", "très", "trois",
+        "troisième", "troisièmement", "trop", "tsoin", "tsouin", "tu", "u", "un", "une", "unes", "uns", "v",
+        "va", "vais", "vas", "vé", "vers", "via", "vif", "vifs", "vingt", "vivat", "vive", "vives", "vlan",
+        "voici", "voilà", "vont", "vos", "votre", "vôtre", "vôtres", "vous", "vous-mêmes", "vu", "w", "x",
+        "y", "z", "zut", "alors", "aucuns", "bon", "devrait", "dos", "droite", "début", "essai", "faites",
+        "fois", "force", "haut", "ici", "juste", "maintenant", "mine", "mot", "nommés", "nouveaux", "parce",
+        "parole", "personnes", "pièce", "plupart", "seulement", "soyez", "sujet", "tandis", "valeur", "voie",
+        "voient", "état", "étions"
+    ]
+    liste_mots_vides = [retirer_accents(mot) for mot in liste_mots_vides_avec_accents]
+    # Suppression de la ponctuation
+    question = question.replace("'", " ").replace("-", " ").lower()
+    punctuation = string.punctuation  # Suppression de la ponctuation
+    question_sans_ponctuation = ''.join(char for char in question if char not in punctuation)
+
+    mots = question_sans_ponctuation.split()  # Division en mots
+    mots_sans_accents = [retirer_accents(mot) for mot in mots]  # Suppression des accents
+    mots_filtres = [mot for mot in mots_sans_accents if mot not in liste_mots_vides]  # Filtrage des mots vides
+
+    return mots_filtres
+
+
+
+def trouver_mots_dans_corpus(mots_question, tf_idf_matrice):
+    """
+    Identifie les mots de la question qui sont également présents dans le corpus.
+     """
+    mots_du_corpus = set(tf_idf_matrice.keys())  # Récupération des mots du corpus.
+    mots_trouves = [mot for mot in mots_question if mot in mots_du_corpus]  # Intersection des mots.
+
+    return mots_trouves
+
+
+def calculer_tf_idf_question(question, tf_idf_matrice):
+    """
+    Calcule le vecteur TF-IDF pour une question donnée, .
+    """
+    mots_question = tokeniser_question(question) # Tokenisation de la question et suppression des mots vides et de la ponctuation
+
+
+    mots_dans_corpus = trouver_mots_dans_corpus(mots_question, tf_idf_matrice)# Filtrage des mots de la question pour ne garder que ceux présents dans le corpus
+
+
+    tf_question = calculer_tf(' '.join(mots_dans_corpus))# Calcul de la fréquence des termes (TF) pour la question
+
+
+    tf_idf_question = {mot: 0 for mot in tf_idf_matrice.keys()}# Initialisation du vecteur TF-IDF de la question avec des scores TF-IDF pour chaque mot du corpus
+
+    # Calcul des scores TF-IDF pour chaque mot de la question en utilisant les scores IDF du corpus
+    for mot in mots_dans_corpus:
+        if mot in tf_idf_matrice:
+            idf_score = sum(tf_idf_matrice[mot]) / len(tf_idf_matrice[mot])# Moyenne des scores IDF pour le mot dans le corpus, car chaque mot a un score TF-IDF par document, nécessitant une synthèse en une seule valeur représentative pour l'ensemble du corpus
+
+            tf_idf_question[mot] = tf_question[mot] * idf_score# Multiplication du score TF du mot dans la question par son score IDF moyen dans le corpus
+
+    return tf_idf_question
+
+
+def calculer_produit_scalaire(vecteur_a, vecteur_b):
+    """
+    Calcule le produit scalaire de deux vecteurs.
+    """
+    produit_scalaire = 0
+
+    if len(vecteur_a) == len(vecteur_b):#  les deux vecteurs a et b doivent avoir la même dimansion
+        for i in range(len(vecteur_a)):
+            produit_scalaire += vecteur_a[i] * vecteur_b[i]  # Multiplie les éléments correspondants et les additionne
+    return produit_scalaire  # Retourne le produit scalaire des deux vecteurs
+
+
+
+def calculer_norme_vecteur(vecteur):
+    """
+    Calcule la norme d'un vecteur.
+    """
+    norme = sum(a ** 2 for a in vecteur)  # Somme des carrés des éléments
+    return math.sqrt(norme) if norme > 0 else 0  # Racine carrée de la somme, si > 0
+
+
+def calculer_similarite_cosinus(vecteur_a, vecteur_b):
+    """
+    Calcule la similarité de cosinus entre deux vecteurs.
+    """
+    produit_scalaire = calculer_produit_scalaire(vecteur_a, vecteur_b)  # Appel de la fonction de produit scalaire
+    norme_a = calculer_norme_vecteur(vecteur_a)  # Appel de la fonction pour calculer la norme de vecteur_a
+    norme_b = calculer_norme_vecteur(vecteur_b)  # Appel de la fonction pour calculer la norme de vecteur_b
+
+    # Vérification pour éviter la division par zéro
+    if norme_a * norme_b > 0:
+        return produit_scalaire / (norme_a * norme_b)  # Calcul de la similarité de cosinus si les normes sont non nulles
+    else:
+        return 0  # Retourne 0 si l'une des normes est nulle
+
+
+def trouver_document_pertinent(tf_idf_corpus, tf_idf_question, files_names, mots_question):
+    meilleur_score = -1
+    document_pertinent = None
+    max_mot_correspondants = 0
+
+    vecteur_question = [tf_idf_question.get(mot, 0) for mot in tf_idf_corpus]
+
+    for index, nom_fichier in enumerate(files_names):
+        with open(os.path.join("./cleaned", nom_fichier), 'r') as file:
+            contenu = file.read()
+            # Compter les mots de la question présents dans le document
+            nb_mots_correspondants = sum(mot in contenu for mot in mots_question)
+
+            if nb_mots_correspondants > max_mot_correspondants:
+                vecteur_document = [tf_idf_corpus[mot][index] if index < len(tf_idf_corpus[mot]) else 0 for mot in tf_idf_corpus]
+                similarite = calculer_similarite_cosinus(vecteur_question, vecteur_document)
+
+                if similarite > meilleur_score:
+                    max_mot_correspondants = nb_mots_correspondants
+                    meilleur_score = similarite
+                    document_pertinent = nom_fichier
+
+    if document_pertinent is None:
+        return "Aucun document pertinent trouvé pour la question posée."
+    else:
+        return document_pertinent
+
+def convertir_chemin_cleaned_vers_speeches(nom_fichier_cleaned):
+    """
+    Convertit le chemin d'un fichier du répertoire 'cleaned' en son équivalent dans le répertoire 'speeches'.
+    """
+    return nom_fichier_cleaned.replace('cleaned', 'speeches')
+
+def trouver_mot_important(tf_idf_question):
+    """
+    Cette fonction prend en entrée le dictionnaire TF-IDF de la question et
+    retourne le mot avec le score TF-IDF le plus élevé.
+    """
+    mot_important = None
+    score_max = 0
+    for mot, score in tf_idf_question.items():
+        if score > score_max:
+            score_max = score
+            mot_important = mot
+    return mot_important
+
+
+import re
+
+def extraire_phrase_avec_mot(document_path, mot_important):
+    """
+    Trouve la première occurrence du mot important dans un document et retourne la phrase complète qui le contient.
+    Une phrase est définie comme étant le texte entouré par deux points « . ».
+    """
+    try:
+        with open(document_path, 'r', encoding='utf-8') as file:
+            contenu = file.read().lower() # Convertir le contenu en minuscules pour une comparaison insensible à la casse
+
+            # Préparation du motif de recherche avec des expressions régulières pour correspondre exactement au mot
+            motif = r'\b{}\b'.format(re.escape(mot_important.lower()))
+            phrases = contenu.split('.') # Séparation du contenu en phrases
+
+            for phrase in phrases: # Itérer sur chaque phrase pour trouver le mot important
+                if re.search(motif, phrase):
+                    return phrase.strip() + '.' # Retourne la phrase nettoyée et ajout d'un point à la fin
+
+            return "Le mot important n'a pas été trouvé dans le document." # Si le mot n'est pas trouvé, retourner cette information
+    except FileNotFoundError:
+        return "Le fichier spécifié est introuvable."
+
+def formuler_reponse(question, phrase_avec_mot_important):
+    # Dictionnaire associant les amorces de question à des introductions de réponse
+    question_starters = {
+        "Comment": "Après analyse, ",
+        "Pourquoi": "Il semble que la raison soit : ",
+        "Peux-tu": "Certainement! ",
+        "Qui": "Il semble que cela concerne : ",
+        "Où": "Cela semble se rapporter à : ",
+        "Quand": "Cela semble s'être produit : ",
+        "Quelle": "La réponse à cette question est : ",
+        "Quelles": "Les réponses à cette question sont : ",
+        "Quel": "La réponse à cette question est : ",
+        "Quels": "Les réponses à cette question sont : "
+    }
+
+    reponse = phrase_avec_mot_important  # Initialiser la réponse avec la phrase trouvée
+    reponse_formulee = ""
+    # Boucle pour associer l'introduction appropriée à la question
+    for starter, replique in question_starters.items():
+
+        if question.startswith(starter):# Vérifier si la question commence par une des amorces
+            reponse_formulee = replique + reponse[0].upper() + reponse[1:]# Mettre une majuscule au début de la réponse extraite
+            break
+
+    if not reponse_formulee:
+        reponse_formulee = "Voici ce que j'ai trouvé : " + reponse[0].upper() + reponse[1:]
+
+    return reponse_formulee
