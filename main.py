@@ -83,7 +83,7 @@ def partie_un_menu():
             mots_communs = mots_communs_tous_presidents(target_directory_cleaned, tf_idf_matrice)
             print(f"Mots communs à tous les présidents (hors mots non importants) : {', '.join(mots_communs)}")
         elif choice == '7':
-            print("Quitter le programme.")
+            print("Retourner au menu principal.")
             break
 def chatbot():
     while True:
@@ -115,7 +115,8 @@ def chatbot():
 
         # Trouver le mot avec le score TF-IDF le plus élevé dans la question
         mot_important = trouver_mot_important(tf_idf_question)
-        print(f"Mot ayant le score TF-IDF le plus élevé : {mot_important}")
+        print(f"Mot ayant le score TF-IDF le plus élevé : {mot_important} ")
+        print()
         nom_document_pertinent_speeches = convertir_chemin_cleaned_vers_speeches(nom_document_pertinent_cleaned)
         # Utiliser le chemin du document pertinent dans 'speeches' pour extraire la phrase
         chemin_document_pertinent = os.path.join(directory_speeches, nom_document_pertinent_speeches)

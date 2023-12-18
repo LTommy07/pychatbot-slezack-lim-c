@@ -440,31 +440,32 @@ def calculer_similarite_cosinus(vecteur_a, vecteur_b):
 
 
 def trouver_document_pertinent(tf_idf_corpus, tf_idf_question, files_names, mots_question):
-    meilleur_score = -1
-    document_pertinent = None
-    max_mot_correspondants = 0
+    meilleur_score = -1  # Initialiser le meilleur score à -1
+    document_pertinent = None  # Initialiser le document pertinent à None
+    max_mot_correspondants = 0  # Nombre maximal de mots correspondants
 
-    vecteur_question = [tf_idf_question.get(mot, 0) for mot in tf_idf_corpus]
+    vecteur_question = [tf_idf_question.get(mot, 0) for mot in tf_idf_corpus]  # Créer le vecteur TF-IDF pour la question
 
-    for index, nom_fichier in enumerate(files_names):
+    for index, nom_fichier in enumerate(files_names):  # Parcourir chaque fichier
         with open(os.path.join("./cleaned", nom_fichier), 'r') as file:
-            contenu = file.read()
-            # Compter les mots de la question présents dans le document
-            nb_mots_correspondants = sum(mot in contenu for mot in mots_question)
+            contenu = file.read()  # Lire le contenu du fichier
+            nb_mots_correspondants = sum(mot in contenu for mot in mots_question)  # Compter le nombre de mots de la question présents
 
-            if nb_mots_correspondants > max_mot_correspondants:
-                vecteur_document = [tf_idf_corpus[mot][index] if index < len(tf_idf_corpus[mot]) else 0 for mot in tf_idf_corpus]
-                similarite = calculer_similarite_cosinus(vecteur_question, vecteur_document)
+            vecteur_document = [tf_idf_corpus[mot][index] if index < len(tf_idf_corpus[mot]) else 0 for mot in tf_idf_corpus]  # Créer le vecteur TF-IDF pour le document
+            similarite = calculer_similarite_cosinus(vecteur_question, vecteur_document)  # Calculer la similarité cosinus
 
-                if similarite > meilleur_score:
-                    max_mot_correspondants = nb_mots_correspondants
-                    meilleur_score = similarite
-                    document_pertinent = nom_fichier
+            # Vérifier si le nombre de mots correspondants est supérieur ou égal et si la similarité est plus élevée
+            if nb_mots_correspondants > max_mot_correspondants or (nb_mots_correspondants == max_mot_correspondants and similarite > meilleur_score):
+                max_mot_correspondants = nb_mots_correspondants
+                meilleur_score = similarite
+                document_pertinent = nom_fichier  # Mettre à jour le document pertinent
 
+    # Gérer le cas où aucun document pertinent n'est trouvé
     if document_pertinent is None:
         return "Aucun document pertinent trouvé pour la question posée."
     else:
-        return document_pertinent
+        return document_pertinent  # Retourner le nom du document pertinent
+
 
 def convertir_chemin_cleaned_vers_speeches(nom_fichier_cleaned):
     """
