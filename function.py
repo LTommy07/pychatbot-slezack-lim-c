@@ -1,12 +1,20 @@
+# Projet : Analyse des Discours Présidentiels avec Chatbot
+# Auteurs : Noam Slezack, Tommy Lin
+# Ce fichier contient des fonctions pour le traitement des textes,
+# l'analyse TF-IDF, et la génération de réponses automatiques pour un chatbot.
 import os
 import string
 import math
-
+import re
 
 
 def list_of_files(directory, extension):
     """
      Parcourt un répertoire donné et compile une liste de tous les fichiers qui se terminent par une extension spécifiée.
+     Paramètres:
+    directory (str) : Chemin du répertoire à parcourir.
+    extension (str) : Extension des fichiers à lister.
+    Retourne : Liste des noms de fichiers dans le répertoire avec l'extension spécifiée.
     """
     files_names = []
     for filename in os.listdir(directory):    # Parcours du répertoire.
@@ -19,7 +27,11 @@ def list_of_files(directory, extension):
 def extraire_noms_presidents(file_names):
     """
      Extrait les noms des présidents à partir des noms de fichiers en supprimant les numéros et les extensions.
-    """
+     Parametres:
+    file_names (list) : Liste des noms de fichiers.
+    Retourne :
+    list:  Liste des noms de présidents sans doublons.
+     """
     presidents = set()    # Ensemble pour éviter les doublons.
     for name in file_names:
         parts = name.replace('.txt', '').split('_')    # Extraction du nom en enlevant l'extension et en séparant par '_'.
@@ -32,7 +44,11 @@ def extraire_noms_presidents(file_names):
 
 def associer_prenoms_presidents(presidents):
     """
-     Associe un prénom à chaque nom de président 
+    Associe un prénom à chaque nom de président à partir d'un dictionnaire prédéfini.
+    Paramètres:
+    presidents (list): Liste des noms de famille des présidents.
+    Retourne:
+    dict: Dictionnaire associant les prénoms aux noms des présidents.
     """
     # Dictionnaire de correspondance prénom-nom.
     prenoms_presidents = {
@@ -50,7 +66,10 @@ def associer_prenoms_presidents(presidents):
 
 def afficher_presidents(presidents):
     """
-     Affiche les noms et prénoms des présidents.
+    Affiche les noms complets des présidents.
+    Paramètres:
+    presidents (dict): Dictionnaire des présidents avec prénoms et noms.
+    ne retourne rien car la fonction imprime les résultats
     """
     for nom_famille, prenom in presidents.items():
         print(f"{prenom} {nom_famille}")
@@ -59,7 +78,11 @@ def afficher_presidents(presidents):
 
 def convertir_en_minuscules(directory, target_directory):
     """
-     Convertit tous les textes des fichiers d'un répertoire en minuscules et les sauvegarde dans un nouveau répertoire.
+    Convertit le contenu de chaque fichier texte en minuscules.
+    Paramètres:
+    directory (str): Chemin du répertoire source.
+    target_directory (str): Chemin du répertoire cible où enregistrer les fichiers modifiés.
+    ne retourne rien car les modifications sont directes
     """
     os.makedirs(target_directory, exist_ok=True)    # Création du répertoire cible si nécessaire.
     for filename in os.listdir(directory):
@@ -74,7 +97,11 @@ def convertir_en_minuscules(directory, target_directory):
 
 def retirer_accents(texte):
     """
-     Remplace les lettres accentuées d'un texte par leur équivalent sans accent.
+    Remplace les lettres accentuées par leurs équivalents sans accent.
+    Paramètres:
+    texte (str): Texte à traiter.
+    Retourne:
+    str: Texte modifié  sans accents.
     """
     # Dictionnaire de correspondance des accents.
     correspondances = {
@@ -91,8 +118,10 @@ def retirer_accents(texte):
 
 def supprimer_ponctuation_et_accents(directory):
     """
-     Parcourt chaque fichier dans le répertoire spécifié, supprime la ponctuation et les accents,
-     et sauvegarde les changements dans le même fichier.
+    Supprime la ponctuation et les accents des fichiers.
+    Paramètres:
+    directory (str): Chemin du répertoire des fichiers.
+    Ne retourne rien car les modifications sont directes
     """
     punctuation = string.punctuation.replace("'", "").replace("-", "")  # Conserve les apostrophes et les tirets
 
@@ -116,7 +145,11 @@ def supprimer_ponctuation_et_accents(directory):
 
 def calculer_tf(texte):
     """
-     Calcule le nombre d'occurrences de chaque mot dans un texte (TF).
+    Calcule la fréquence des termes (TF) de chaque mot dans un texte.
+    Paramètres:
+    texte (str): Texte à analyser.
+    Retourne:
+    dict: Dictionnaire des fréquences des termes.
     """
     mots = texte.split()    # Séparation du texte en mots.
     tf = {}    # Dictionnaire pour stocker les fréquences.
@@ -131,8 +164,12 @@ def calculer_tf(texte):
 
 def calculer_idf(directory):
     """
-     Calcule l'IDF pour chaque mot unique dans un ensemble de fichiers.
-    """
+    Calcule l'IDF pour chaque mot unique dans les fichiers.
+    Paramètres:
+    directory (str): Chemin du répertoire des fichiers.
+    Retourne:
+    dict: Dictionnaire des scores IDF.
+        """
     files = os.listdir(directory)    # Liste des fichiers dans le répertoire.
     nb_fichiers = len([f for f in files if f.endswith('.txt')])    # Nombre total de fichiers.
     comptage_docs_mot = {}    # Dictionnaire pour compter combien de documents contiennent chaque mot.
@@ -151,7 +188,11 @@ def calculer_idf(directory):
 
 def calculer_tf_idf(directory):
     """
-     Calcule la matrice TF-IDF pour tous les fichiers d'un répertoire.
+    Calcule la matrice TF-IDF pour tous les fichiers. .
+    Paramètres:
+    directory (str): Chemin du répertoire des fichiers.
+    Retourne:
+    dict: Dictionnaire représentant la matrice TF-IDF.
     """
     tf_idf_matrice = {}    # Dictionnaire pour la matrice TF-IDF.
     idf_scores = calculer_idf(directory)    # Calcul des scores IDF.
@@ -173,7 +214,11 @@ def calculer_tf_idf(directory):
 
 def trouver_mots_moins_importants(tf_idf_matrice):
     """
-     Identifie les mots qui ont un score TF-IDF de zéro ou très bas dans tous les documents.
+    Identifie les mots avec un score TF-IDF de zéro.
+    Paramètres:
+    tf_idf_matrice (dict): Matrice TF-IDF des documents.
+    Retourne:
+    list: Liste des mots avec un score TF-IDF de zéro.
     """
 
     return [mot for mot, scores in tf_idf_matrice.items() if all(score == 0 for score in scores)]
@@ -182,7 +227,11 @@ def trouver_mots_moins_importants(tf_idf_matrice):
 
 def trouver_mots_avec_tf_idf_le_plus_eleve(tf_idf_matrice):
     """
-     Cette fonction identifie les mots ayant le score TF-IDF le plus élevé dans l'ensemble des documents.
+    Identifie les mots avec le score TF-IDF le plus élevé.
+    Paramètres:
+    tf_idf_matrice (dict): Matrice TF-IDF des documents.
+    Retourne:
+    tuple: Liste des mots avec le score TF-IDF le plus élevé et le score.
     """
     score_tf_idf_maximal = 0    # Initialisation du score maximal et de la liste des mots correspondants.
     liste_mots_avec_score_maximal = []
@@ -198,7 +247,13 @@ def trouver_mots_avec_tf_idf_le_plus_eleve(tf_idf_matrice):
 
 def mots_les_plus_repetes_par_president(tf_idf_matrice, directory, nom_president):
     """
-     Identifie les mots les plus répétés dans les discours d'un président donné, en tenant compte de leur importance (TF-IDF).
+    Identifie les mots les plus répétés dans les discours d'un président spécifique, en tenant compte de leur score TF-IDF.
+    Paramètres:
+    tf_idf_matrice (dict): Matrice TF-IDF des documents.
+    directory (str): Chemin du répertoire contenant les discours.
+    nom_president (str): Nom du président à analyser.
+    Retourne:
+    list: Liste des 20 mots les plus répétés par le président spécifié.
     """
     mots_avec_tfidf_positif = set(mot for mot, scores in tf_idf_matrice.items() if any(score > 0.1 for score in scores))    # Ensemble des mots avec un score TF-IDF positif.
     comptage_mots = {}    # Dictionnaire pour le comptage des mots.
@@ -216,7 +271,11 @@ def mots_les_plus_repetes_par_president(tf_idf_matrice, directory, nom_president
 
 def compter_mentions_nation(directory):
     """
-     Compte le nombre de fois que le mot "nation" est mentionné par chaque président dans l'ensemble des documents.
+    Compte le nombre de fois que le mot "nation" est mentionné par chaque président.
+    Paramètres:
+    directory (str): Chemin du répertoire des fichiers.
+    Retourne:
+    dict: Dictionnaire des présidents et du nombre de mentions de "nation".
     """
     mentions_nation = {}    # Dictionnaire pour les mentions de "nation".
     mot_recherche = 'nation'    # Le mot à rechercher.
@@ -237,7 +296,11 @@ def compter_mentions_nation(directory):
 
 def extraire_nom_president2(filename):
     """
-     Extrait le nom du président à partir du nom d'un fichier en supprimant les numéros et les caractères non alphabétiques.
+    Extrait le nom du président à partir du nom d'un fichier, en supprimant les numéros et caractères non alphabétiques.
+    Paramètres:
+    filename (str): Nom du fichier à analyser.
+    Retourne:
+    str: Nom du président extrait du nom de fichier.
     """
     parts = filename.replace(".txt", "").split('_')    # Suppression de l'extension et division basée sur '_'.
     nom_president = ""
@@ -248,7 +311,11 @@ def extraire_nom_president2(filename):
 
 def trouver_premier_president_climat_ecologie(directory):
     """
-     Détermine le premier président à mentionner des termes liés au climat ou à l'écologie en suivant l'ordre d'investiture.
+    Détermine le premier président à mentionner des termes liés au climat ou à l'écologie.
+    Paramètres:
+    directory (str): Chemin du répertoire des fichiers.
+    Retourne:
+    tuple: Nom du président et fichier où la mention a été trouvée. Si aucun n'est trouvé, retourne un tuple vide.
     """
     # Liste des termes liés au climat ou à l'écologie.
     mots_recherches = [
@@ -281,7 +348,12 @@ def trouver_premier_president_climat_ecologie(directory):
 
 def mots_communs_tous_presidents(directory, tf_idf_matrice):
     """
-     Trouve les mots qui sont communs à tous les discours des présidents, à l'exception de ceux ayant un score TF-IDF de zéro.
+    Trouve les mots communs à tous les discours des présidents, exclus ceux avec un score TF-IDF de zéro.
+    Paramètres:
+    directory (str): Chemin du répertoire des fichiers.
+    tf_idf_matrice (dict): Matrice TF-IDF des documents.
+    Retourne:
+    set: Ensemble de mots communs à tous les présidents.
     """
     files = [f for f in os.listdir(directory) if f.endswith('.txt')]    # Liste des fichiers dans le répertoire.
     if not files:
@@ -301,6 +373,10 @@ def mots_communs_tous_presidents(directory, tf_idf_matrice):
 def tokeniser_question(question):
     """
     Tokenise une question en supprimant la ponctuation, les majuscules, et les mots vides.
+    Paramètres:
+    question (str): Question à tokeniser.
+    Retourne:
+    list: Liste des mots tokenisés.
     """
     liste_mots_vides_avec_accents = [
         "a", "à", "â", "abord", "afin", "ah", "ai", "aie", "ainsi", "allaient",
@@ -370,7 +446,12 @@ def tokeniser_question(question):
 
 def trouver_mots_dans_corpus(mots_question, tf_idf_matrice):
     """
-    Identifie les mots de la question qui sont également présents dans le corpus.
+     Identifie les mots de la question présents dans le corpus.
+     Paramètres:
+     mots_question (list): Liste des mots de la question.
+     tf_idf_matrice (dict): Matrice TF-IDF des documents.
+     Retourne:
+     list: Liste des mots de la question présents dans le corpus.
      """
     mots_du_corpus = set(tf_idf_matrice.keys())  # Récupération des mots du corpus.
     mots_trouves = [mot for mot in mots_question if mot in mots_du_corpus]  # Intersection des mots.
@@ -380,7 +461,12 @@ def trouver_mots_dans_corpus(mots_question, tf_idf_matrice):
 
 def calculer_tf_idf_question(question, tf_idf_matrice):
     """
-    Calcule le vecteur TF-IDF pour une question donnée, .
+    Calcule le vecteur TF-IDF pour une question donnée.
+    Paramètres:
+    question (str): Question posée.
+    tf_idf_matrice (dict): Matrice TF-IDF des documents.
+    Retourne:
+    dict: Vecteur TF-IDF de la question.
     """
     mots_question = tokeniser_question(question) # Tokenisation de la question et suppression des mots vides et de la ponctuation
 
@@ -406,6 +492,11 @@ def calculer_tf_idf_question(question, tf_idf_matrice):
 def calculer_produit_scalaire(vecteur_a, vecteur_b):
     """
     Calcule le produit scalaire de deux vecteurs.
+    Paramètres:
+    vecteur_a (list): Premier vecteur.
+    vecteur_b (list): Deuxième vecteur.
+    Retourne:
+    float: Produit scalaire des deux vecteurs.
     """
     produit_scalaire = 0
 
@@ -419,6 +510,10 @@ def calculer_produit_scalaire(vecteur_a, vecteur_b):
 def calculer_norme_vecteur(vecteur):
     """
     Calcule la norme d'un vecteur.
+    Paramètres:
+    vecteur (list): Vecteur à analyser.
+    Retourne:
+    float: Norme du vecteur.
     """
     norme = sum(a ** 2 for a in vecteur)  # Somme des carrés des éléments
     return math.sqrt(norme) if norme > 0 else 0  # Racine carrée de la somme, si > 0
@@ -426,7 +521,12 @@ def calculer_norme_vecteur(vecteur):
 
 def calculer_similarite_cosinus(vecteur_a, vecteur_b):
     """
-    Calcule la similarité de cosinus entre deux vecteurs.
+    Calcule la similarité cosinus entre deux vecteurs.
+    Paramètres:
+    vecteur_a (list): Premier vecteur.
+    vecteur_b (list): Deuxième vecteur.
+    Retourne:
+    float: Similarité cosinus entre les vecteurs.
     """
     produit_scalaire = calculer_produit_scalaire(vecteur_a, vecteur_b)  # Appel de la fonction de produit scalaire
     norme_a = calculer_norme_vecteur(vecteur_a)  # Appel de la fonction pour calculer la norme de vecteur_a
@@ -440,6 +540,16 @@ def calculer_similarite_cosinus(vecteur_a, vecteur_b):
 
 
 def trouver_document_pertinent(tf_idf_corpus, tf_idf_question, files_names, mots_question):
+    """
+    Trouve le document le plus pertinent basé sur la similarité cosinus et le nombre de mots correspondants.
+    Paramètres:
+    tf_idf_corpus (dict): Matrice TF-IDF du corpus.
+    tf_idf_question (dict): Vecteur TF-IDF de la question.
+    files_names (list): Liste des noms de fichiers dans le corpus.
+    mots_question (list): Liste des mots tokenisés et filtrés de la question.
+    Retourne:
+    str: Nom du fichier le plus pertinent. Retourne un message si aucun document pertinent n'est trouvé.
+    """
     meilleur_score = -1  # Initialiser le meilleur score à -1
     document_pertinent = None  # Initialiser le document pertinent à None
     max_mot_correspondants = 0  # Nombre maximal de mots correspondants
@@ -460,8 +570,7 @@ def trouver_document_pertinent(tf_idf_corpus, tf_idf_question, files_names, mots
                 meilleur_score = similarite
                 document_pertinent = nom_fichier  # Mettre à jour le document pertinent
 
-    # Gérer le cas où aucun document pertinent n'est trouvé
-    if document_pertinent is None:
+    if document_pertinent is None:# Gérer le cas où aucun document pertinent n'est trouvé
         return "Aucun document pertinent trouvé pour la question posée."
     else:
         return document_pertinent  # Retourner le nom du document pertinent
@@ -469,14 +578,21 @@ def trouver_document_pertinent(tf_idf_corpus, tf_idf_question, files_names, mots
 
 def convertir_chemin_cleaned_vers_speeches(nom_fichier_cleaned):
     """
-    Convertit le chemin d'un fichier du répertoire 'cleaned' en son équivalent dans le répertoire 'speeches'.
+    Convertit le nom d'un fichier du répertoire 'cleaned' vers son équivalent dans 'speeches'.
+    Paramètres:
+    nom_fichier_cleaned (str): Nom du fichier dans le répertoire 'cleaned'.
+    Retourne:
+    str: Nom du fichier converti pour le répertoire 'speeches'.
     """
     return nom_fichier_cleaned.replace('cleaned', 'speeches')
 
 def trouver_mot_important(tf_idf_question):
     """
-    Cette fonction prend en entrée le dictionnaire TF-IDF de la question et
-    retourne le mot avec le score TF-IDF le plus élevé.
+    Identifie le mot avec le score TF-IDF le plus élevé dans la question.
+    Paramètres:
+    tf_idf_question (dict): Vecteur TF-IDF de la question.
+    Retourne:
+    str: Mot ayant le score TF-IDF le plus élevé. Retourne None si aucun mot n'est trouvé.
     """
     mot_important = None
     score_max = 0
@@ -487,12 +603,16 @@ def trouver_mot_important(tf_idf_question):
     return mot_important
 
 
-import re
+
 
 def extraire_phrase_avec_mot(document_path, mot_important):
     """
-    Trouve la première occurrence du mot important dans un document et retourne la phrase complète qui le contient.
-    Une phrase est définie comme étant le texte entouré par deux points « . ».
+    Extrait la première phrase contenant le mot important d'un document.
+    Paramètres:
+    document_path (str): Chemin du fichier document.
+    mot_important (str): Mot important à rechercher.
+    Retourne:
+    str: Phrase contenant le mot important. Retourne une phrase d'erreur si le mot n'est pas trouvé.
     """
     try:
         with open(document_path, 'r', encoding='utf-8') as file:
@@ -511,6 +631,14 @@ def extraire_phrase_avec_mot(document_path, mot_important):
         return "Le fichier spécifié est introuvable."
 
 def formuler_reponse(question, phrase_avec_mot_important):
+    """
+    Formule une réponse basée sur le début de la question et la phrase contenant le mot important.
+    Paramètres:
+    question (str): La question posée par l'utilisateur.
+    phrase_avec_mot_important (str): Phrase contenant le mot important extrait du document.
+    Retourne:
+    str: Réponse formulée en fonction du début de la question et de la phrase extraite.
+    """
     # Dictionnaire associant les amorces de question à des introductions de réponse
     question_starters = {
         "Comment": "Après analyse, ",
