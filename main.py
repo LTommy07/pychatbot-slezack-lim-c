@@ -1,11 +1,18 @@
+"""
+Projet : Analyse des Discours Présidentiels avec Chatbot
+Auteurs : Noam Slezack, Tommy Lin
+Ce fichier 'main.py' . Il gère l'interface utilisateur pour naviguer entre les différentes fonctionnalités du programme,
+. Ce script permet à l'utilisateur de choisir entre l'analyse de texte des discours présidentiels et le mode Chatbot,
+"""
+# Importation des fonctions du module function.py
 from function import *
 
-# Chemins des répertoires pour les fichiers d'entrée et de sortie
+# Définition des chemins des répertoires pour les fichiers d'entrée et de sortie
 directory_speeches = "./speeches"
 target_directory_cleaned = "./cleaned"
 file_extension = ".txt"
 
-# Traitement initial des fichiers
+# Initialisation et traitement des fichiers de discours
 files_names = list_of_files(directory_speeches, file_extension)
 presidents = extraire_noms_presidents(files_names)
 presidents_avec_prenoms = associer_prenoms_presidents(presidents)
@@ -17,19 +24,22 @@ afficher_presidents(presidents_avec_prenoms)
 # Conversion des fichiers en minuscules et suppression de la ponctuation
 convertir_en_minuscules(directory_speeches, target_directory_cleaned)
 supprimer_ponctuation_et_accents(target_directory_cleaned)
-
+# Calcul de la matrice TF-IDF pour l'analyse des discours
 tf_idf_matrice = calculer_tf_idf(target_directory_cleaned)
 
 
 
+
+# Définition du menu principal
 def main_menu():
     while True:
+        # Affichage des options du menu
         print("\nMenu Principal:")
         print("1. Accéder aux fonctionnalités de l'analyse de texte (Partie I)")
         print("2. Mode Chatbot (Partie II)")
         print("3. Quitter")
         choice = input("Entrez votre choix (1-3) : ")
-
+        # Traitement du choix de l'utilisateur
         if choice == '1':
             partie_un_menu()
         elif choice == '2':
@@ -39,10 +49,11 @@ def main_menu():
             break
         else:
             print("Choix invalide. Veuillez entrer un nombre entre 1 et 3.")
-# Menu principal pour les fonctionnalités supplémentaires
+# Menu pour les fonctionnalités d'analyse textuelle
 def partie_un_menu():
-    SEUIL_NON_IMPORTANT = 0.5
+
     while True:
+        # Affichage des options de la Partie I
         print("\nMenu Principal:")
         print("1. Afficher les mots les moins importants")
         print("2. Afficher les mots avec le score TF-IDF le plus élevé")
@@ -52,11 +63,11 @@ def partie_un_menu():
         print("6. Mots communs à tous les présidents (hors mots non importants)")
         print("7. Quitter")
         choice = input("Entrez votre choix (1-7) : ")
-
+        # Traitement du choix de l'utilisateur dans la Partie I
         if not choice.isdigit() or not 1 <= int(choice) <= 7:
             print("Veuillez entrer un nombre entre 1 et 7.")
             continue
-
+        # Appel des fonctions correspondantes en fonction du choix
         if choice == '1':
             mots = trouver_mots_moins_importants(tf_idf_matrice)
             print(f"Mots les moins importants : {', '.join(mots)}")
@@ -87,18 +98,21 @@ def partie_un_menu():
             break
         else:
             print("Choix invalide.Entrer un nombre entre 1 et 7:")
+
+# Fonction pour le mode Chatbot
 def chatbot():
     while True:
         print("\nMode Chatbot:")
         print("Posez votre question (ou tapez 'quitter' pour revenir au menu principal):")
         question = input("Votre question : ")
+        # Validation de la question
         while question[0].isdigit():
             question = input("Reformuler votre question : ")
             print("Posez votre question (ou tapez 'quitter' pour revenir au menu principal):")
         if question.lower() == 'quitter':
             print("Retour au menu principal.")
             break
-
+        # Traitement de la question
         mots_question = tokeniser_question(question)  # Tokenisation de la question.
         print("Mots de la question après tokenisation et filtrage :", mots_question)
 
