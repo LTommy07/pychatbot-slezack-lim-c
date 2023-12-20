@@ -1,6 +1,6 @@
 """
 Projet : Analyse des Discours Présidentiels avec Chatbot
-Auteurs : Noam Slezack, Tommy Lin
+Auteurs : Noam Slezack, Tommy Lim
 Ce fichier 'main.py' . Il gère l'interface utilisateur pour naviguer entre les différentes fonctionnalités du programme,
 . Ce script permet à l'utilisateur de choisir entre l'analyse de texte des discours présidentiels et le mode Chatbot,
 """
