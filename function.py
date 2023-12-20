@@ -1,5 +1,5 @@
 # Projet : Analyse des Discours Présidentiels avec Chatbot
-# Auteurs : Noam Slezack, Tommy Lin
+# Auteurs : Noam Slezack, Tommy Lim
 # Ce fichier contient des fonctions pour le traitement des textes,
 # l'analyse TF-IDF, et la génération de réponses automatiques pour un chatbot.
 import os
